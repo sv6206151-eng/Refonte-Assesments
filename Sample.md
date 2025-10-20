@@ -8,6 +8,8 @@ Predictions of Training nad Validations (With Accuracy plots)-Nf(6)_Predictions 
 
  Newfoldertoexe/bhunji-AI Powered Movie Recomnedation Systems
 
+ Interactive Report Heart Disease Prediction---Interactive Report Heart Disease Prediction
+
  
 
  
