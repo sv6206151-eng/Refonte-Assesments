@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: Heart Disease Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA is designed as a guided, scrollable narrative that mirrors the machine learning workflow from the report. A sticky top navigation allows users to jump to specific sections, providing a non-linear exploration path. The structure is: 1) Introduction, 2) Interactive Data Exploration (EDA) with dynamic charts, 3) Model Development and Comparison with clickable details, 4) A simulated prediction tool to demonstrate the model's purpose, and 5) Conclusion. This task-oriented flow from understanding the data to using the outcome was chosen to make the complex process intuitive and engaging for a user interested in data science. -->
+    <!-- Visualization & Content Choices: 
+    - Dataset Stats: Goal: Inform -> Method: HTML Cards -> Interaction: Static -> Justification: Quick, high-level overview.
+    - Preprocessing Flow: Goal: Organize -> Method: HTML/CSS Diagram -> Interaction: Static -> Justification: Visually simplifies a technical process.
+    - Feature Distributions: Goal: Compare/Explore -> Method: Dynamic Bar Chart (Chart.js) -> Interaction: Dropdown selection -> Justification: Allows users to actively explore the distribution of different features in one consolidated view.
+    - Feature Correlations: Goal: Relationships -> Method: Bar Chart (Chart.js) -> Interaction: Static -> Justification: Highlights the most impactful features quickly, which is more effective than a complex heatmap for a general audience.
+    - Model Comparison: Goal: Compare -> Method: Bar Chart + HTML Cards (Chart.js) -> Interaction: Click to reveal stats -> Justification: Provides a high-level comparison visually, with an option to drill down for details.
+    - Prediction Tool: Goal: Engage/Demonstrate -> Method: HTML Form with Sliders/Radios -> Interaction: User input triggers JS calculation -> Justification: Simulates the final deployed application, making the project's outcome tangible.
+    - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfaf7;
+            color: #3f3c3a;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        .nav-link {
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #d97706; /* amber-600 */
+        }
+        .stat-card {
+            background-color: #fff;
+            border: 1px solid #f3f0ec;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+        }
+        .btn-primary {
+            background-color: #fb923c; /* orange-400 */
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #f97316; /* orange-500 */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-xl font-bold text-amber-700">Heart Disease Prediction</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#overview" class="nav-link text-gray-600">Overview</a>
+                <a href="#eda" class="nav-link text-gray-600">Data Insights</a>
+                <a href="#models" class="nav-link text-gray-600">Model Building</a>
+                <a href="#predictor" class="nav-link text-gray-600">Live Predictor</a>
+                <a href="#conclusion" class="nav-link text-gray-600">Conclusion</a>
+            </div>
+            <div class="md:hidden">
+                <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md py-2 px-3 text-gray-600">
+                    <option value="#overview">Overview</option>
+                    <option value="#eda">Data Insights</option>
+                    <option value="#models">Model Building</option>
+                    <option value="#predictor">Live Predictor</option>
+                    <option value="#conclusion">Conclusion</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="overview" class="text-center mb-24">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-800 mb-4">Interactive Report: Predicting Heart Disease</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">This report documents the end-to-end development of a machine learning model to predict heart disease risk. We'll explore the data, compare different algorithms, and demonstrate the final model with an interactive prediction tool.</p>
+        </section>
+
+        <section id="data" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-amber-800">Project Overview & Data</h2>
+            <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">The project began with a dataset of patient health records. The first crucial phase involved cleaning and preparing this data to make it suitable for training a machine learning model.</p>
+            
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="stat-card p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl font-bold text-amber-600">303</div>
+                    <div class="text-gray-500 mt-2">Patient Records</div>
+                </div>
+                <div class="stat-card p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl font-bold text-amber-600">14</div>
+                    <div class="text-gray-500 mt-2">Initial Features</div>
+                </div>
+                <div class="stat-card p-6 rounded-lg shadow-sm text-center">
+                    <div class="text-4xl font-bold text-amber-600">0</div>
+                    <div class="text-gray-500 mt-2">Missing Values</div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-center mb-6">Data Preprocessing Workflow</h3>
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 text-center">
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <span class="text-lg font-medium">Raw Data</span>
+                </div>
+                <span class="text-2xl text-amber-500 font-light">&rarr;</span>
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <span class="text-lg font-medium">Categorical Encoding</span>
+                </div>
+                 <span class="text-2xl text-amber-500 font-light">&rarr;</span>
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <span class="text-lg font-medium">Feature Scaling</span>
+                </div>
+                 <span class="text-2xl text-amber-500 font-light">&rarr;</span>
+                <div class="bg-green-100 text-green-800 p-4 rounded-lg shadow-sm border border-green-200">
+                    <span class="text-lg font-semibold">Model-Ready Data</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="eda" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-amber-800">Data Insights</h2>
+            <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">Exploratory Data Analysis (EDA) allowed us to uncover patterns and relationships within the data. These insights are crucial for understanding the factors that might contribute to heart disease.</p>
+            
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+                <div class="md:flex md:space-x-8">
+                    <div class="md:w-1/2 mb-8 md:mb-0">
+                        <h3 class="text-xl font-semibold mb-2">Feature Distributions</h3>
+                        <p class="text-gray-600 mb-4">Select a feature to see how its values are distributed across the patients in the dataset.</p>
+                        <select id="featureSelector" class="w-full p-2 border rounded-md mb-4">
+                            <option value="age">Age</option>
+                            <option value="trestbps">Resting Blood Pressure</option>
+                            <option value="chol">Cholesterol</option>
+                            <option value="thalach">Max Heart Rate</option>
+                        </select>
+                        <div class="chart-container h-64 md:h-80 max-h-[350px]">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <h3 class="text-xl font-semibold mb-2">Key Feature Correlations with Heart Disease</h3>
+                         <p class="text-gray-600 mb-4">This chart shows which features have the strongest relationship with the presence of heart disease. Positive values suggest a direct correlation, while negative values suggest an inverse one.</p>
+                        <div class="chart-container h-80 md:h-96 max-h-[400px]">
+                            <canvas id="correlationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="models" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-amber-800">Building the Prediction Model</h2>
+             <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">Several machine learning models were trained and evaluated to find the most accurate predictor. After hyperparameter tuning, a clear winner emerged.</p>
+            
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+                <h3 class="text-xl font-semibold mb-6 text-center">Tuned Model Performance Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="modelComparisonChart"></canvas>
+                </div>
+                <div class="mt-8 text-center bg-amber-50 p-4 rounded-lg border border-amber-200">
+                    <h4 class="font-bold text-amber-800">Best Performing Model</h4>
+                    <p class="text-2xl font-bold text-amber-600 mt-2">Random Forest Classifier</p>
+                    <p class="text-gray-600 mt-1">This model demonstrated the best overall performance, balancing accuracy and robustness, making it the final choice for the prediction tool.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="predictor" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-amber-800">Live Prediction Tool</h2>
+             <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">This tool provides a simplified demonstration of the final model. Adjust the patient details below to see a simulated prediction of heart disease risk.</p>
+
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200 md:flex md:space-x-8 items-center">
+                <div class="md:w-3/5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="age" class="font-medium">Age: <span id="ageValue" class="font-bold">54</span></label>
+                            <input type="range" id="age" min="29" max="77" value="54" class="w-full">
+                        </div>
+                        <div>
+                            <label for="chol" class="font-medium">Cholesterol: <span id="cholValue" class="font-bold">246</span></label>
+                            <input type="range" id="chol" min="126" max="564" value="246" class="w-full">
+                        </div>
+                        <div>
+                            <label for="thalach" class="font-medium">Max Heart Rate: <span id="thalachValue" class="font-bold">150</span></label>
+                            <input type="range" id="thalach" min="71" max="202" value="150" class="w-full">
+                        </div>
+                        <div>
+                            <label class="font-medium">Chest Pain Type</label>
+                            <select id="cp" class="w-full p-2 border rounded-md mt-1">
+                                <option value="0">Typical Angina</option>
+                                <option value="1">Atypical Angina</option>
+                                <option value="2" selected>Non-Anginal Pain</option>
+                                <option value="3">Asymptomatic</option>
+                            </select>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label class="font-medium">Exercise Induced Angina?</label>
+                            <div class="flex items-center space-x-4 mt-1">
+                                <label><input type="radio" name="exang" value="0" checked> No</label>
+                                <label><input type="radio" name="exang" value="1"> Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-2/5 mt-8 md:mt-0 text-center p-6 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2">Simulated Risk Prediction</h3>
+                    <div id="predictionOutput" class="text-4xl font-bold text-green-600 mb-2">Low Risk</div>
+                    <div id="predictionScore" class="text-lg text-gray-500">Confidence: 85%</div>
+                    <p class="text-xs text-gray-400 mt-4">Disclaimer: This is a demonstration tool and not a substitute for professional medical advice.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion">
+            <h2 class="text-3xl font-bold text-center mb-2 text-amber-800">Conclusion & Future Work</h2>
+             <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">This project successfully developed an effective Random Forest model for predicting heart disease. The process highlights the importance of a structured workflow from data preprocessing to model deployment.</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h4 class="font-semibold mb-2">Collect More Data</h4>
+                    <p class="text-gray-600 text-sm">Enhancing the model's accuracy by training on a larger, more diverse dataset.</p>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h4 class="font-semibold mb-2">Use Advanced Algorithms</h4>
+                    <p class="text-gray-600 text-sm">Exploring algorithms like XGBoost or neural networks could yield even better performance.</p>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h4 class="font-semibold mb-2">Incorporate More Features</h4>
+                    <p class="text-gray-600 text-sm">Adding richer data, such as patient lifestyle or genetic information, could improve prediction.</p>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h4 class="font-semibold mb-2">Model Explainability</h4>
+                    <p class="text-gray-600 text-sm">Using tools like SHAP or LIME to understand *why* the model makes certain predictions.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t mt-16">
+        <div class="container mx-auto px-6 py-6 text-center text-gray-500">
+            <p>&copy; 2025 Heart Disease Prediction Interactive Report. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const distributionData = {
+                age: {
+                    labels: ['20-29', '30-39', '40-49', '50-59', '60-69', '70-79'],
+                    values: [1, 12, 72, 125, 81, 12]
+                },
+                trestbps: {
+                    labels: ['90-109', '110-129', '130-149', '150-169', '170+'],
+                    values: [57, 115, 93, 30, 8]
+                },
+                chol: {
+                    labels: ['100-199', '200-299', '300-399', '400+'],
+                    values: [59, 179, 58, 7]
+                },
+                thalach: {
+                    labels: ['70-99', '100-129', '130-159', '160-189', '190+'],
+                    values: [12, 53, 119, 108, 11]
+                }
+            };
+            
+            const correlationData = {
+                labels: ['Chest Pain Type', 'Max Heart Rate', 'Slope', 'Resting ECG', 'Exercise Angina', 'Oldpeak', 'Num Major Vessels'],
+                values: [0.43, 0.42, 0.35, 0.14, -0.44, -0.43, -0.39]
+            };
+
+            const modelComparisonData = {
+                labels: ['Random Forest', 'SVM', 'Logistic Regression', 'Decision Tree'],
+                values: [0.88, 0.86, 0.85, 0.81]
+            };
+
+            let distributionChart, correlationChart, modelComparisonChart;
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#3f3c3a',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f0ec' },
+                        ticks: { color: '#9ca3af' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af' }
+                    }
+                }
+            };
+
+            const createDistributionChart = (feature) => {
+                const ctx = document.getElementById('distributionChart').getContext('2d');
+                if (distributionChart) {
+                    distributionChart.destroy();
+                }
+                distributionChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: distributionData[feature].labels,
+                        datasets: [{
+                            label: 'Patient Count',
+                            data: distributionData[feature].values,
+                            backgroundColor: '#fb923c',
+                            borderColor: '#f97316',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: chartOptions
+                });
+            };
+
+            const createCorrelationChart = () => {
+                const ctx = document.getElementById('correlationChart').getContext('2d');
+                correlationChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: correlationData.labels,
+                        datasets: [{
+                            label: 'Correlation with Target',
+                            data: correlationData.values,
+                            backgroundColor: correlationData.values.map(v => v > 0 ? 'rgba(52, 211, 153, 0.7)' : 'rgba(239, 68, 68, 0.7)'),
+                             borderColor: correlationData.values.map(v => v > 0 ? 'rgb(16, 185, 129)' : 'rgb(220, 38, 38)'),
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: { ...chartOptions, indexAxis: 'y' }
+                });
+            };
+            
+            const createModelComparisonChart = () => {
+                 const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+                 modelComparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: modelComparisonData.labels,
+                        datasets: [{
+                            label: 'Accuracy Score',
+                            data: modelComparisonData.values,
+                            backgroundColor: ['#d97706', '#fb923c', '#fdba74', '#fed7aa'],
+                             borderColor: ['#b45309', '#ea580c', '#f97316', '#fb923c'],
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: chartOptions
+                 });
+            };
+
+            createDistributionChart('age');
+            createCorrelationChart();
+            createModelComparisonChart();
+            
+            document.getElementById('featureSelector').addEventListener('change', (e) => {
+                createDistributionChart(e.target.value);
+            });
+
+            const predictorInputs = ['age', 'chol', 'thalach', 'cp', 'exang'];
+            const valueSpans = {
+                age: document.getElementById('ageValue'),
+                chol: document.getElementById('cholValue'),
+                thalach: document.getElementById('thalachValue'),
+            };
+
+            const updatePrediction = () => {
+                const age = parseInt(document.getElementById('age').value, 10);
+                const chol = parseInt(document.getElementById('chol').value, 10);
+                const thalach = parseInt(document.getElementById('thalach').value, 10);
+                const cp = parseInt(document.getElementById('cp').value, 10);
+                const exang = parseInt(document.querySelector('input[name="exang"]:checked').value, 10);
+
+                let score = 0;
+                
+                score += (age > 60) ? 20 : (age > 50 ? 10 : 0);
+                score += (chol > 300) ? 20 : (chol > 240 ? 10 : 0);
+                score -= (thalach > 160) ? 15 : (thalach > 140 ? 5 : 0);
+                score += (cp === 3) ? 25 : (cp === 0 ? 5 : 0);
+                score += (exang === 1) ? 30 : 0;
+                
+                let probability = Math.max(5, Math.min(95, score + 10));
+                
+                const outputDiv = document.getElementById('predictionOutput');
+                const scoreDiv = document.getElementById('predictionScore');
+
+                if (probability > 50) {
+                    outputDiv.textContent = 'High Risk';
+                    outputDiv.className = 'text-4xl font-bold text-red-600 mb-2';
+                    scoreDiv.textContent = `Confidence: ${probability.toFixed(0)}%`;
+                } else {
+                    outputDiv.textContent = 'Low Risk';
+                    outputDiv.className = 'text-4xl font-bold text-green-600 mb-2';
+                    scoreDiv.textContent = `Confidence: ${(100 - probability).toFixed(0)}%`;
+                }
+            };
+
+            predictorInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if(element) {
+                    element.addEventListener('input', () => {
+                        if (valueSpans[id]) {
+                            valueSpans[id].textContent = element.value;
+                        }
+                        updatePrediction();
+                    });
+                }
+            });
+
+             document.querySelectorAll('input[name="exang"]').forEach(radio => {
+                radio.addEventListener('change', updatePrediction);
+             });
+            
+            updatePrediction();
+
+            const mobileNav = document.getElementById('mobile-nav');
+            mobileNav.addEventListener('change', () => {
+                window.location.hash = mobileNav.value;
+            });
+        });
+    </script>
+</body>
+</html>
