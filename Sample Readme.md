@@ -1,5 +1,8 @@
 Just a New File
 
+**File PATHS  and location of all assesments**
+
+
 i)Assesmnets and Navigations
 
 ii)Online Retail Sales and Etc Assesment---Nf(7)_Online Retail Sales and Etc
