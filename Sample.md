@@ -1,14 +1,17 @@
 Just a New File
 
- Assesmnets and Navigations
+i)Assesmnets and Navigations
 
-Online Retail Sales and Etc Assesment-Nf(7)_Online Retail Sales and Etc
+ii)Online Retail Sales and Etc Assesment-Nf(7)_Online Retail Sales and Etc
 
-Predictions of Training nad Validations (With Accuracy plots)-Nf(6)_Predictions and accuracy_PLots
+iii)Predictions of Training and Validations (With Accuracy plots)-Nf(6)_Predictions and accuracy_PLots
 
- Newfoldertoexe/bhunji-AI Powered Movie Recomnedation Systems
+iv)Newfoldertoexe/bhunji-AI Powered Movie Recomnedation Systems
 
- Interactive Report Heart Disease Prediction---Interactive Report Heart Disease Prediction
+v)Interactive Report Heart Disease Prediction---Interactive Report Heart Disease Prediction
+
+vi)III Assignment_ Energy Consumption Forecasting---III Data Science Assignment_ Energy Consumption Forecasting.zip
+
 
  
 
